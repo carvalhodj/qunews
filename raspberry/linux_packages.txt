@@ -1,0 +1,4 @@
+## Pacotes essenciais para o funcionamento do script no Raspbian Jessie ##
+
+APT:
+    libpcap-dev python-dev
