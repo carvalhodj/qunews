@@ -8,3 +8,9 @@
    '**rabbit_requirements.txt**', a serem instalados com o '**pip**' pelo comando:
 
     - sudo pip install -r rabbit_requirements.txt
+ 
+ - Para utilizar o MQTT com o Spark, habilitar o plugin MQTT do RabbitMQ com o seguinte comando:
+
+    - sudo rabbitmq-plugins enable rabbitmq_mqtt
+
+ - O arquivo **rabbitmq.config** deve ser colocar no diretório **/etc/rabbitmq/**, para que funcione a comunicação MQTT;
