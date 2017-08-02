@@ -46,5 +46,3 @@ for ts, pkt in pcap.pcap(name='wlan0'):
                 del MACS[mac]
         print("### TAMANHO DICIONARIO = %d" % len(MACS))
         mensagem = str(list(MACS.keys())).replace('[', '').replace(']', '').replace('\'', '')
-#        print(ts, src, ssid)
-#        print("\n")
