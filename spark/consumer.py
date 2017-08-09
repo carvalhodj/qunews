@@ -10,7 +10,7 @@ contador = 0
 mqttStream = MQTTUtils.createStream(
     ssc, 
     "tcp://172.16.207.183:1883",  # Note both port number and protocol
-    "qunews/users/mac"                  # The same routing key as used by producer
+    "qunews/coletor/ceagri"                  # The same routing key as used by producer
 )
 
 def mapearTipo(macs):
