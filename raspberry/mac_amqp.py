@@ -21,8 +21,24 @@ channel = connection.channel()
 
 channel.exchange_declare(exchange='qunews.data', type='topic', durable=True)
 
-routing_key = 'qunews.users.mac'
+routing_key = 'qunews.coletor.ceagri'
 
+## Início do código de callback
+result = channel.queue_declare(exclusive=True)
+queue_name = result.method.queue
+
+channel.queue_bind(exchange='qunews.data',
+                   queue=queue_name,
+                   routing_key='qunews.frequencia.ceagri')
+
+def callback(ch, method, properties, body):
+    try:
+        freq1, freq2, freq3 = body[0], body[1], body[2] # considerando que a mensagem será uma lista de tuplas
+        return ## chamado para o REST pedindo as notícias
+    except:
+        print("Erro no recebimento das tuplas")
+
+## Fim do código de callback
 def enviaAMQP(rk):
     global mensagem
     channel.basic_publish(exchange='qunews.data', routing_key=rk, body=mensagem)
