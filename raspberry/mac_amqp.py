@@ -3,8 +3,6 @@ import pika
 import sys
 import threading
 
-#connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.0.108'))
-
 MACS = {}
 TIME_OUT = 10
 
@@ -23,7 +21,8 @@ channel.exchange_declare(exchange='qunews.data', type='topic', durable=True)
 
 routing_key = 'qunews.coletor.ceagri'
 
-## Início do código de callback
+"""
+## Inicio do codigo de callback
 result = channel.queue_declare(exclusive=True)
 queue_name = result.method.queue
 
@@ -33,12 +32,21 @@ channel.queue_bind(exchange='qunews.data',
 
 def callback(ch, method, properties, body):
     try:
-        freq1, freq2, freq3 = body[0], body[1], body[2] # considerando que a mensagem será uma lista de tuplas
-        return ## chamado para o REST pedindo as notícias
+        body = eval(body)
+        freq1, freq2, freq3 = body[0], body[1], body[2] # considerando que a mensagem sera uma lista de tuplas
+        print(freq1)
+        print(freq2)
+        print(freq3)
     except:
         print("Erro no recebimento das tuplas")
 
-## Fim do código de callback
+channel.basic_consume(callback,
+                      queue=queue_name,
+                      no_ack=True)
+channel.start_consuming()
+## Fim do codigo de callback
+"""
+
 def enviaAMQP(rk):
     global mensagem
     channel.basic_publish(exchange='qunews.data', routing_key=rk, body=mensagem)
