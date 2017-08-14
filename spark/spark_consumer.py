@@ -41,15 +41,22 @@ def envia(frequencia):
     channel.basic_publish(
         exchange='qunews.data',  # amq.topic as exchange
         routing_key='qunews.frequencia.ceagri',   # Routing key used by producer
-        body=str(frequencia)
+        body=str(frequencia[1])
     )
 
     connection.close()
     return 1
 
+
+def chave_unica(valor):
+    return ('tipo', valor)
+
 counts = mqttStream.flatMap(lambda mac: mac.split(','))\
                    .map(mapearTipo)\
 		   .reduceByKey(lambda a, b: a + b)\
+		   .map(chave_unica)\
+		   .groupByKey()\
+		   .mapValues(list)\
 		   .map(envia)
 counts.pprint()
 ssc.start()
