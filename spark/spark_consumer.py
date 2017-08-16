@@ -8,7 +8,7 @@ ssc = StreamingContext(sc, 10)
 
 contador = 0
 
-IP_RABBIT = "172.16.188.133"
+IP_RABBIT = "192.168.0.11"
 MQTT_PORT = "1883"
 
 mqttStream = MQTTUtils.createStream(
@@ -46,18 +46,25 @@ def envia(frequencia):
 
     connection.close()
     return 1
-
-
-def chave_unica(valor):
-    return ('tipo', valor)
-
+"""
 counts = mqttStream.flatMap(lambda mac: mac.split(','))\
                    .map(mapearTipo)\
 		   .reduceByKey(lambda a, b: a + b)\
-		   .map(chave_unica)\
+		   .map(lambda a: ('tipo', a))\
 		   .groupByKey()\
 		   .mapValues(list)\
 		   .map(envia)
+"""
+
+lines = spark.read.text('teste.txt').rdd.map(lambda r: r[0])
+
+counts = lines.map(lambda x: (x, 1))
+
+total_macs = counts.count()
+
+counts = counts.reduceByKey(lambda x, y: x + y)\
+	       .map(lambda x: (x[0], float(x[1])/total_macs))
+
 counts.pprint()
 ssc.start()
 ssc.awaitTermination()
