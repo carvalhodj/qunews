@@ -1,8 +1,17 @@
 import pika
+import sys
+import requests, json
+from get_serial import get_serial
+
+IP_RABBIT = sys.argv[1]
+IP_REST = sys.argv[2] + "8000/teste/"
+SERIAL = get_serial()
+
+headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 credentials = pika.PlainCredentials('qunews', 'qunews')
 connection = pika.BlockingConnection(pika.ConnectionParameters(
-               '10.0.0.17', 5672, 'qunews_host', credentials))
+               IP_RABBIT, 5672, 'qunews_host', credentials))
 
 channel = connection.channel()
 
@@ -36,15 +45,21 @@ def calcula_frequencias(lista_macs):
     for tipo in lista_macs:
         frequencia_relativa = float(tipo[1])/total_macs
         frequencia_relativa_rounded = round(frequencia_relativa, 2)
-        lista_frequencias.append((tipo[0], frequencia_relativa_rounded))
+        lista_frequencias.append((tipo[0], int(frequencia_relativa_rounded*10)))
 
     return lista_frequencias
 
 
 def callback(ch, method, properties, body):
+    global headers
+    global IP_REST
+    global SERIAL
     texto = body.decode()
     lista = calcula_frequencias(eval(texto))
-    print(lista)
+    print("Texto {} ; Tipo {}".format(texto, type(texto)))
+    print(SERIAL + ' ' + texto)
+#    noticias = requests.post(IP_REST, data=SERIAL+texto, headers=headers)
+
 
 channel.basic_consume(callback,
                       queue=queue_name,

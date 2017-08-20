@@ -25,31 +25,6 @@ channel.exchange_declare(exchange='qunews.data', type='topic', durable=True)
 routing_key = 'qunews.coletor.ceagri'
 historico_routing_key = 'qunews.historico.coletor.ceagri'
 
-"""
-## Inicio do codigo de callback
-result = channel.queue_declare(exclusive=True)
-queue_name = result.method.queue
-
-channel.queue_bind(exchange='qunews.data',
-                   queue=queue_name,
-                   routing_key='qunews.frequencia.ceagri')
-
-def callback(ch, method, properties, body):
-    try:
-        body = eval(body)
-        freq1, freq2, freq3 = body[0], body[1], body[2] # considerando que a mensagem sera uma lista de tuplas
-        print(freq1)
-        print(freq2)
-        print(freq3)
-    except:
-        print("Erro no recebimento das tuplas")
-
-channel.basic_consume(callback,
-                      queue=queue_name,
-                      no_ack=True)
-#channel.start_consuming()
-## Fim do codigo de callback
-"""
 
 def enviaAMQP(rk, hrk):
     global mensagem
