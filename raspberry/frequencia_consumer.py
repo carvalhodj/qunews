@@ -1,13 +1,14 @@
 import pika
 import sys
 import requests, json
+import urllib.request
 from get_serial import get_serial
 
 IP_RABBIT = sys.argv[1]
-IP_REST = sys.argv[2] + "8000/teste/"
-SERIAL = get_serial()
+IP_REST = "http://" + sys.argv[2] + ":8000/teste/"
+SERIAL = "000000"
 
-headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+headers = {'Content-type': 'application/json'}
 
 credentials = pika.PlainCredentials('qunews', 'qunews')
 connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -56,10 +57,25 @@ def callback(ch, method, properties, body):
     global SERIAL
     texto = body.decode()
     lista = calcula_frequencias(eval(texto))
-    print("Texto {} ; Tipo {}".format(texto, type(texto)))
-    print(SERIAL + ' ' + texto)
-#    noticias = requests.post(IP_REST, data=SERIAL+texto, headers=headers)
-
+    print("Frequências: {}".format(lista))
+    lista_formatada = []
+    for tupla in lista:
+        nova_tupla = (tupla[0],tupla[1])
+        lista_formatada.append(nova_tupla)
+    msg ='\"'+SERIAL+';'+str(lista_formatada)+'\"'
+    noticias = requests.post(IP_REST, data=msg, headers=headers)
+    dados = noticias.json()
+    nome_cont = 1
+    for item in dados:
+        link = "http://192.168.0.104:8000"+item['image']
+        nome_arq = ""
+        if nome_cont < 10:
+            nome_arq += '00' + str(nome_cont) + '.png'
+        else:
+            nome_arq += '0' + str(nome_cont) + '.png'
+        nome_cont += 1
+        urllib.request.urlretrieve(link, nome_arq)
+    print("Oie!")
 
 channel.basic_consume(callback,
                       queue=queue_name,
