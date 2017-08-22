@@ -17,8 +17,7 @@ class App(tk.Tk):
         self.delay = delay
         # allows repeat cycling through the pictures
         # store as (img_object, img_name) tuple
-        self.pictures = cycle((ImageTk.PhotoImage(file=image), image)
-                              for image in image_files)
+        self.atualiza()
         self.picture_display = tk.Label(self)
         self.picture_display.pack()
     def show_slides(self):
@@ -30,6 +29,10 @@ class App(tk.Tk):
         # to show an associated description of the image
         self.title(img_name)
         self.after(self.delay, self.show_slides)
+    def atualiza(self):
+        self.pictures = cycle((ImageTk.PhotoImage(file=image), image)
+                              for image in image_files)
+        self.after(38500, self.atualiza)
     def run(self):
         self.mainloop()
 # set milliseconds time between slides
@@ -37,15 +40,23 @@ delay = 3500
 # get a series of gif images you have in the working folder
 # or use full path, or set directory to where the images are
 image_files = [
-'imagem.jpg',
-'imagem2.jpg',
-'imagem3.jpg',
-'imagem4.jpg',
-'imagem5.jpg'
+'001.png',
+'002.png',
+'003.png',
+'004.png',
+'005.png',
+'006.png',
+'007.png',
+'008.png',
+'009.png',
+'010.png'
 ]
 # upper left corner coordinates of app window
 x = 100
 y = 50
-app = App(image_files, x, y, delay)
-app.show_slides()
-app.run()
+try:
+    app = App(image_files, x, y, delay)
+    app.show_slides()
+    app.run()
+except:
+    print('Erro no processamento das imagens')
