@@ -2,13 +2,25 @@ from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.mqtt import MQTTUtils
 import pika
+import sys
+import psycopg2
+import os
+
+
+dsn_database = "qunewdatabase"            
+dsn_hostname = "localhost" 
+dsn_port = "5432"               
+dsn_uid = "postgres"       
+dsn_pwd = "1234"      
+
+
 
 sc = SparkContext()
-ssc = StreamingContext(sc, 10)
+ssc = StreamingContext(sc, 60)
 
 contador = 0
 
-IP_RABBIT = "192.168.0.11"
+IP_RABBIT = "192.168.0.102"
 MQTT_PORT = "1883"
 
 mqttStream = MQTTUtils.createStream(
@@ -17,17 +29,35 @@ mqttStream = MQTTUtils.createStream(
     "qunews/coletor/ceagri"                  # The same routing key as used by producer
 )
 
+def ConsultarBanco(mac):
+	try:
+		conn_string = "host="+dsn_hostname+" port="+dsn_port+" dbname="+dsn_database+" user="+dsn_uid+" password="+dsn_pwd
+		print ("Connecting to database\n  ->%s" % (conn_string))
+		conn=psycopg2.connect(conn_string)
+		print ("Connected!\n")
+	except:
+		print ("Unable to connect to the database.")
+	cursor = conn.cursor()
+	cursor.execute("""SELECT tt.nome from tipo_pessoamac tpm inner join tipo_pessoa tp on tpm.pessoa_fk_id = tp.id inner join tipo_tipo tt on tp.tiporef_id = tt.id where tpm.mac = """+ "'"+mac+"'")
+	resultado = cursor.fetchall()
+	print("Resultado consulta "+str(resultado))
+	return resultado
+
 def mapearTipo(macs):
-    global contador
-    if contador == 0:
-        contador += 1
-        return ('aluno', 1)
-    elif contador == 1:
-        contador += 1
-        return ('professor', 1)
-    else:
-        contador = 0
-        return ('funcionario', 1)
+
+	result = ConsultarBanco(macs)
+	if (len(result) != 0):
+		print("MAC "+result[0][0]+" é cadastrado")
+		return (result[0][0],1)
+	else:
+	
+		global contador
+		if contador == 0:
+			contador += 1
+			return ('Aluno', 1)
+		else:
+			contador = 0
+			return ('Professor', 1)
 
 def envia(frequencia):
     global IP_RABBIT
@@ -46,7 +76,7 @@ def envia(frequencia):
 
     connection.close()
     return 1
-"""
+
 counts = mqttStream.flatMap(lambda mac: mac.split(','))\
                    .map(mapearTipo)\
 		   .reduceByKey(lambda a, b: a + b)\
@@ -54,16 +84,7 @@ counts = mqttStream.flatMap(lambda mac: mac.split(','))\
 		   .groupByKey()\
 		   .mapValues(list)\
 		   .map(envia)
-"""
 
-lines = spark.read.text('teste.txt').rdd.map(lambda r: r[0])
-
-counts = lines.map(lambda x: (x, 1))
-
-total_macs = counts.count()
-
-counts = counts.reduceByKey(lambda x, y: x + y)\
-	       .map(lambda x: (x[0], float(x[1])/total_macs))
 
 counts.pprint()
 ssc.start()
