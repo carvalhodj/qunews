@@ -57,7 +57,10 @@ def callback(ch, method, properties, body):
     global SERIAL
     texto = body.decode()
     lista = calcula_frequencias(eval(texto))
-    print("Frequências: {}".format(lista))
+    try:
+        print("Frequências: {} => {} || {} => {}".format(lista[0][0], lista[0][1], lista[1][0], lista[1][1]))
+    except:
+        print("Frequências: {} => {}".format(lista[0][0], lista[0][1]))
     lista_formatada = []
     for tupla in lista:
         nova_tupla = (tupla[0],tupla[1])
@@ -75,7 +78,7 @@ def callback(ch, method, properties, body):
             nome_arq += '0' + str(nome_cont) + '.png'
         nome_cont += 1
         urllib.request.urlretrieve(link, nome_arq)
-    print("Oie!")
+    print("=====================================")
 
 channel.basic_consume(callback,
                       queue=queue_name,

@@ -29,11 +29,9 @@ historico_routing_key = 'qunews.historico.coletor.ceagri'
 def enviaAMQP(rk, hrk):
     global mensagem
     global SERIAL
-#    global SERIAL
-#    print(SERIAL)
     channel.basic_publish(exchange='qunews.data', routing_key=rk, body=mensagem)
     channel.basic_publish(exchange='qunews.data', routing_key=hrk, body=mensagem+':'+SERIAL)
-    threading.Timer(10, enviaAMQP, [rk,hrk]).start()
+    threading.Timer(60, enviaAMQP, [rk,hrk]).start()
 
 enviaAMQP(routing_key, historico_routing_key)
 
