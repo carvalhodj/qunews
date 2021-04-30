@@ -70,7 +70,7 @@ python-socketio==1.7.4
 pytz==2017.2
 rainbowhat==0.0.2
 requests==2.4.3
-rsa==3.4.2
+rsa==4.7
 scrollphat==0.0.7
 scrollphathd==1.0.1
 sense-emu==1.0
