@@ -84,7 +84,7 @@ touchphat==0.0.1
 twython==3.1.2
 tzlocal==1.4
 uritemplate==3.0.0
-urllib3==1.9.1
+urllib3==1.26.5
 virtualenv==15.1.0
 wheel==0.24.0
 wsgiref==0.1.2
